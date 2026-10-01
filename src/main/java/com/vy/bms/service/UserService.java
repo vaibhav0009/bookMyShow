@@ -1,6 +1,7 @@
 package com.vy.bms.service;
 
 
+import com.vy.bms.dto.LoginDto;
 import com.vy.bms.dto.UserDto;
 import com.vy.bms.dto.UserRegisterDto;
 import com.vy.bms.exception.ResourceNotFoundException;
@@ -43,6 +44,18 @@ public class UserService {
         return users.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    public UserDto login(LoginDto loginDto)
+    {
+        User user=userRepository.findByEmail(loginDto.getEmail())
+                .orElseThrow(()->new IllegalStateException("Invalid email or password"));
+
+        if (!user.getPassword().equals(loginDto.getPassword())) {
+            throw new IllegalStateException("Invalid email or password");
+        }
+
+        return mapToDto(user);
     }
 
     //update user

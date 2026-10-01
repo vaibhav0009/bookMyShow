@@ -1,6 +1,7 @@
 package com.vy.bms.controller;
 
 import com.vy.bms.dto.ForgotPasswordDto;
+import com.vy.bms.dto.LoginDto;
 import com.vy.bms.dto.ResetPasswordDto;
 import com.vy.bms.dto.UserDto;
 import com.vy.bms.dto.UserRegisterDto;
@@ -37,6 +38,12 @@ public class UserController {
     public ResponseEntity<List<UserDto>> getAllUsers()
     {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginDto loginDto)
+    {
+        return ResponseEntity.ok(userService.login(loginDto));
     }
 
     @PostMapping("/forgot-password")
