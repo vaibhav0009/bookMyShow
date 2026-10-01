@@ -9,7 +9,9 @@ import com.vy.bms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +47,34 @@ public class UserService {
 
     //update user
     //delete user
+
+    public String forgotPassword(String email)
+    {
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("User not found with email: "+email));
+
+        String token=UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        return token;
+    }
+
+    public void resetPassword(String token, String newPassword)
+    {
+        User user=userRepository.findByResetToken(token)
+                .orElseThrow(()->new IllegalStateException("Invalid or expired reset token"));
+
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Invalid or expired reset token");
+        }
+
+        user.setPassword(newPassword);
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
 
     private User mapToEntity(UserRegisterDto userDto) {
         User user=new User();
